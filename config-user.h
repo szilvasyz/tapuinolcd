@@ -9,8 +9,8 @@
 
 // uncomment one of these sets for your specific LCD
 
-// #define LCD_USE_1602_LCD_MODULE
-// #define LCD_I2C_ADDR        0x27 // I2C address for the LCD
+#define LCD_USE_1602_LCD_MODULE
+#define LCD_I2C_ADDR        0x27 // I2C address for the LCD
 
 // #define LCD_USE_SSD1306_OLED_MODULE
 // #define LCD_I2C_ADDR        0x3C // I2C address for the OLED
@@ -23,8 +23,18 @@
 // #define LCD_USE_SSD131X_OLED_MODULE
 // #define LCD_I2C_ADDR        0x3C // I2C address for the OLED
 
-#define LCD_USE_ST7920_LCD_MODULE
-#define LCD_I2C_ADDR        0x27 // I2C address for the LCD
+// #define LCD_USE_ST7920_LCD_MODULE
+// #define LCD_I2C_ADDR        0x27 // I2C address for the LCD
+
+// #define LCD_USE_SH1106_OLED_MODULE
+// #define LCD_I2C_ADDR        0x3C // I2C address for the OLED
+// #define LCD_SH1106_BIG_FONTS     // define this for ... bigger fonts...
+// choose one of these depending on your display
+// #define LCD_SH1106_128x64
+// #define LCD_SH1106_128x32
+// #define LCD_SH1106_COLOFFSET 2    // column offset, SH1106 has 132 columns
+// #define LCD_SH1106_UPSIDEDOWN    // rotate with 180 degrees
+
 
 /********************************************************************************/
 // Language Definitions

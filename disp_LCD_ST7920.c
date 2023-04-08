@@ -7,8 +7,8 @@
 #include <avr/pgmspace.h>
 
 #include "i2c_master.h"
-#include "ST7920_font8x8.h"
-
+//#include "ST7920_font8x8.h"
+#include "myfont_8x8.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -167,7 +167,7 @@ void lcd_clear() {
 
   for (r = 0; r < _rows; r++) 
     for (c = 0; c < _cols; c++) 
-      dm[c][r] = 0;
+      dm[c][r] = ' ';
 
   i2c_start((_addr << 1) | I2C_WRITE);
 
@@ -175,7 +175,7 @@ void lcd_clear() {
 
     send(LCD_SETDDRAMADDR | r, 0);
     send(LCD_SETDDRAMADDR | 0, 0);
-    v = _BV(LCD_BIT_RS); 
+    v = _backlightval | _BV(LCD_BIT_RS); 
     i2c_write(v);
 
     for (c = 0; c < 64; c++) {
@@ -242,23 +242,23 @@ void lcd_charWrite(uint8_t col, uint8_t row, uint8_t chr) {
   i2c_start((_addr << 1) | I2C_WRITE); 
   send(LCD_FUNCTIONSET | _displayextfunc | LCD_EXT_GRON, 0);
      
-//  r = (row & 0b11) << 3;
-//  c = (col >> 1) | ((row & 0b100) << 1);
-//  p0 = 8 * dm[col & 0xFE][row];
-//  p1 = 8 * dm[col | 0x01][row];
-  r = (row & 0b1) << 4;
-  c = (col >> 1) | ((row & 0b10) << 2);
-  p0 = 8 * dm[col & 0xFE][row];
-  p1 = 8 * dm[col | 0x01][row];
+  r = (row & 0b11) << 3;
+  c = (col >> 1) | ((row & 0b100) << 1);
+//  r = (row & 0b1) << 4;
+//  c = (col >> 1) | ((row & 0b10) << 2);
+  p0 = &console_font[  LCD_CHAR_TO_POS(dm[col & 0xFE][row])  ][0];
+  p1 = &console_font[  LCD_CHAR_TO_POS(dm[col | 0x01][row])  ][0];
 
-  for (i = 0; i < 8; i++) {
-    temp = (pgm_read_byte(&console_font_8x8[p0++]) << 8) | pgm_read_byte(&console_font_8x8[p1++]);
+  for (i = 0; i < LCD_FONT_HEIGHT; i++) {
+//  for (i = 0; i < LCD_FONT_HEIGHT; i+=2) {
+    temp = (pgm_read_byte(p0++) << 8) | pgm_read_byte(p1++);
+//    temp |= (pgm_read_byte(p0++) << 8) | pgm_read_byte(p1++);
     send(LCD_SETDDRAMADDR | r++, 0);
     send(LCD_SETDDRAMADDR | c, 0);
     send16(temp, 1);
-    send(LCD_SETDDRAMADDR | r++, 0);
-    send(LCD_SETDDRAMADDR | c, 0);
-    send16(temp, 1);
+//    send(LCD_SETDDRAMADDR | r++, 0);
+//    send(LCD_SETDDRAMADDR | c, 0);
+//    send16(temp, 1);
   }
   i2c_stop();
 }

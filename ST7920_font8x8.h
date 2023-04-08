@@ -1,6 +1,7 @@
-#include <avr/pgmspace.h>
+#define LCD_FONT_HEIGHT 8
+#define LCD_CHAR_TO_POS(x) (x)
 
-const unsigned char console_font_8x8[] PROGMEM = {
+const unsigned char console_font[256][8] PROGMEM = {
 
     /*
      * code=0, hex=0x00, ascii="^@"
