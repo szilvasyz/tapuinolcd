@@ -16,20 +16,30 @@
 #define NUM_COLS  16
 #define NUM_ROWS  4
 
-#ifdef LCD_BIG_FONTS
-#define BANKS_PER_ROW 2
-
 #ifdef LCD_SH1106_128x32
-#define NUM_ROWS  2
-#endif
-
+  #ifdef LCD_BIG_FONTS
+    #define BANKS_PER_ROW 2
+    #define NUM_ROWS  2
+  #elif defined LCD_HUGE_FONTS
+    #define BANKS_PER_ROW 4
+    #define NUM_ROWS  1
+  #else
+    #define BANKS_PER_ROW 1
+    #define NUM_ROWS  4
+  #endif
+#elif defined LCD_SH1106_128x64
+  #ifdef LCD_BIG_FONTS
+    #define BANKS_PER_ROW 2
+    #define NUM_ROWS  4
+  #elif defined LCD_HUGE_FONTS
+    #define BANKS_PER_ROW 4
+    #define NUM_ROWS  2
+  #else
+    #define BANKS_PER_ROW 1
+    #define NUM_ROWS  8
+  #endif
 #else
-#define BANKS_PER_ROW 1
-
-#ifdef LCD_SH1106_128x64
-#define NUM_ROWS  8
-#endif
-
+  #error "You must define OLED screen size!" 
 #endif
 
 #define NUM_CHARS NUM_COLS * NUM_ROWS
@@ -164,6 +174,50 @@ void lcd_noBacklight() {
 
 
 void write_raw(uint8_t value, uint8_t cursor) {
+  uint8_t i, j, r, v, w1, w2, col, row;
+  uint8_t c = value < 32 ? 0 : value - 32;
+  uint8_t b[8];
+ 
+  col = (_col << 3) + LCD_SH1106_COLOFFSET; // convert to pixel: character column * 8
+  row = BANKS_PER_ROW * _row;
+
+  for (i = 0; i < 8; i++)
+    b[i] = pgm_read_byte(&font8x8[c * 8 + i]) | (cursor ? 0x80: 0);
+
+  for (r = 0; r < BANKS_PER_ROW; r++) {
+    sh1106_send_command_start();
+    i2c_write(SH1106_SETSTARTPAGE + row + r);
+    i2c_write((col & 0x0f) | SH1106_LOWCOLUMNADDR);
+    i2c_write(((col & 0xf0) >> 4) | SH1106_HIGHCOLUMNADDR);
+    sh1106_send_data_start();
+    
+    // write 1 column of the character per iteration
+    for (i = 0; i < 8; i++)
+    {
+      v = b[i];
+#ifdef LCD_BIG_FONTS
+      v = (v >> (r * 4)) & 0x0F;
+      v |= (v << 2);
+      v &= 0x33;
+      v |= (v << 1);
+      v &= 0x55;
+      v |= (v << 1);
+#elif defined LCD_HUGE_FONTS
+      v = (v >> (r * 2)) & 0x03;
+      v |= (v << 3);
+      v &= 0x11;
+      v |= (v << 2);
+      v &= 0x55;
+      v |= (v << 1);
+#endif
+      i2c_write(v);
+    }
+  }
+  i2c_stop();
+}
+
+/*
+void write_raw(uint8_t value, uint8_t cursor) {
   uint8_t i, j, v, w1, w2, col, row;
   uint8_t c = value < 32 ? 0 : value - 32;
   uint8_t b[8];
@@ -211,6 +265,7 @@ void write_raw(uint8_t value, uint8_t cursor) {
 
   i2c_stop();
 }
+*/
 
 void lcd_setCursor(uint8_t col, uint8_t row)
 {
