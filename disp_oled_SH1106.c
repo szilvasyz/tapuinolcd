@@ -6,6 +6,7 @@
 #include <util/delay.h>
 #include "i2c_master.h"
 #include "orig8x8-iso8859-2.h"
+//#include "orig8x8-iso8859-1.h"
 //#include "font8x8.h"
 
 #ifndef LCD_SH1106_COLOFFSET
@@ -15,7 +16,7 @@
 #define NUM_COLS  16
 #define NUM_ROWS  4
 
-#ifdef LCD_SH1106_BIG_FONTS
+#ifdef LCD_BIG_FONTS
 #define BANKS_PER_ROW 2
 
 #ifdef LCD_SH1106_128x32
@@ -72,11 +73,15 @@ void sh1106_send_data_start(void);
 #define SH1106_RMWEND              0xEE
 #define SH1106_NOP                 0xE3
 
+#define SSD1306_CHARGEPUMP          0x8D
+#define SSD1306_MEMORYMODE          0x20
+
 
 // Init Sequence
 const uint8_t sh1106_init_sequence [] PROGMEM = {
   SH1106_DISPLAYOFF,                   // 0xAE Display OFF (sleep mode)
   SH1106_SETDISPLAYCLOCKDIV,   0x80,   // 0xD5 Set display clock divide ratio/oscillator frequency
+
 #if defined LCD_SH1106_128x64  
   SH1106_SETMULTIPLEX,         0x3F,   // 0xA8 Set multiplex ratio (1 to 64)
   SH1106_SETCOMPINS,           0x12,   // 0xDA Set com pins hardware configuration
@@ -84,11 +89,13 @@ const uint8_t sh1106_init_sequence [] PROGMEM = {
   SH1106_SETMULTIPLEX,         0x1F,   // 0xA8 Set multiplex ratio (1 to 32)
   SH1106_SETCOMPINS,           0x02,   // 0xDA Set com pins hardware configuration
 #endif
+
   SH1106_SETDISPLAYOFFSET,     0x00,   // 0xD3 Set display offset. 00 = no offset
 
-  0x8D,           0x14,                 // SSD1306_CHARGEPUMP, 0x8D Set DC-DC enable: internal VCC
-  0x20,           0x10,                 // SSD1306_MEMORYMODE, 0x20 Set Memory Addressing Mode
-
+#ifdef LCD_SH1106_SSD1306INIT
+  SSD1306_CHARGEPUMP,          0x14,   // SSD1306_CHARGEPUMP, 0x8D Set DC-DC enable: internal VCC
+  SSD1306_MEMORYMODE,          0x10,   // SSD1306_MEMORYMODE, 0x20 Set Memory Addressing Mode
+#endif
   
   SH1106_SETSTARTLINE | 0x00,          // 0x40 Set start line address
                                         //      00=Horizontal Addressing Mode; 01=Vertical Addressing Mode;
@@ -117,8 +124,6 @@ void lcd_init(uint8_t lcd_addr)
 {
   uint8_t i;
   _addr = lcd_addr;
-  _row = 0;
-  _col = 0;
   _displayCursor = 0;
   
   i2c_init();
@@ -127,8 +132,14 @@ void lcd_init(uint8_t lcd_addr)
   for (i = 0; i < sizeof (sh1106_init_sequence); i++) {
     sh1106_send_command(pgm_read_byte(&sh1106_init_sequence[i]));
   }
+  lcd_clear();
+}
+
+void lcd_clear() {
   sh1106_fillscreen(0);
-  memset(_buffer, 32, NUM_CHARS);
+  memset(_buffer, 32, NUM_CHARS);  
+  _row = 0;
+  _col = 0;
 }
 
 void lcd_cursor() {
@@ -173,7 +184,7 @@ void write_raw(uint8_t value, uint8_t cursor) {
   for (i = 0; i < 8; i++)
   {
     v = b[i];
-#ifdef LCD_SH1106_BIG_FONTS
+#ifdef LCD_BIG_FONTS
     w1 = 0;
     w2 = 0;
     for (j = 0; j < 4; j++) {
@@ -187,7 +198,7 @@ void write_raw(uint8_t value, uint8_t cursor) {
     i2c_write(v);
   }
 
-#ifdef LCD_SH1106_BIG_FONTS
+#ifdef LCD_BIG_FONTS
   sh1106_send_command_start();
   i2c_write(SH1106_SETSTARTPAGE + row + 1);
   i2c_write((col & 0x0f) | SH1106_LOWCOLUMNADDR);

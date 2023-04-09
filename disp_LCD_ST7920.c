@@ -8,7 +8,9 @@
 
 #include "i2c_master.h"
 //#include "ST7920_font8x8.h"
-#include "myfont_8x8.h"
+//#include "myfont_8x8.h"
+//#include "orig8x8-h-iso8859-1.h"
+#include "orig8x8-h-iso8859-2.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -242,12 +244,17 @@ void lcd_charWrite(uint8_t col, uint8_t row, uint8_t chr) {
   i2c_start((_addr << 1) | I2C_WRITE); 
   send(LCD_FUNCTIONSET | _displayextfunc | LCD_EXT_GRON, 0);
      
+//  p0 = &console_font[ (dm[col & 0xFE][row]) - 32  ][0];
+//  p1 = &console_font[ (dm[col | 0x01][row]) - 32  ][0];
+#ifdef LCD_BIG_FONTS
+  r = (row & 0b1) << 4;
+  c = (col >> 1) | ((row & 0b10) << 2);
+#else
   r = (row & 0b11) << 3;
   c = (col >> 1) | ((row & 0b100) << 1);
-//  r = (row & 0b1) << 4;
-//  c = (col >> 1) | ((row & 0b10) << 2);
-  p0 = &console_font[  LCD_CHAR_TO_POS(dm[col & 0xFE][row])  ][0];
-  p1 = &console_font[  LCD_CHAR_TO_POS(dm[col | 0x01][row])  ][0];
+#endif  
+  p0 = &console_font[  LCD_FONT_HEIGHT * LCD_CHAR_TO_POS(dm[col & 0xFE][row])  ];
+  p1 = &console_font[  LCD_FONT_HEIGHT * LCD_CHAR_TO_POS(dm[col | 0x01][row])  ];
 
   for (i = 0; i < LCD_FONT_HEIGHT; i++) {
 //  for (i = 0; i < LCD_FONT_HEIGHT; i+=2) {
@@ -256,9 +263,11 @@ void lcd_charWrite(uint8_t col, uint8_t row, uint8_t chr) {
     send(LCD_SETDDRAMADDR | r++, 0);
     send(LCD_SETDDRAMADDR | c, 0);
     send16(temp, 1);
-//    send(LCD_SETDDRAMADDR | r++, 0);
-//    send(LCD_SETDDRAMADDR | c, 0);
-//    send16(temp, 1);
+#ifdef LCD_BIG_FONTS
+    send(LCD_SETDDRAMADDR | r++, 0);
+    send(LCD_SETDDRAMADDR | c, 0);
+    send16(temp, 1);
+#endif
   }
   i2c_stop();
 }
