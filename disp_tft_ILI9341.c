@@ -110,20 +110,20 @@ const uint8_t initseq[] PROGMEM = {
 // 7 - MISO   PB6
 // 6 - MOSI   PB5
 // 5 - SDCS   PB4
-// 20 - DPDC  PD6
-// 19 - DPRST PD5
-// 18 - DPCS  PD4
-#define TFT_DC_PORT         PORTD
-#define TFT_DC_DDR          DDRD
-#define TFT_DC_PIN          6
+// 20 - DPDC  PD6 -> PA2
+// 19 - DPRST PD5 -> PA1
+// 18 - DPCS  PD4 -> PA0
+#define TFT_DC_PORT         PORTA
+#define TFT_DC_DDR          DDRA
+#define TFT_DC_PIN          2
 
-#define TFT_CS_PORT         PORTD
-#define TFT_CS_DDR          DDRD
-#define TFT_CS_PIN          4
+#define TFT_CS_PORT         PORTA
+#define TFT_CS_DDR          DDRA
+#define TFT_CS_PIN          0
 
-#define TFT_RST_PORT        PORTD
-#define TFT_RST_DDR         DDRD
-#define TFT_RST_PIN         5
+#define TFT_RST_PORT        PORTA
+#define TFT_RST_DDR         DDRA
+#define TFT_RST_PIN         1
 
 #define LCD_W 320
 #define LCD_H 240
