@@ -27,16 +27,19 @@
 // #define LCD_I2C_ADDR        0x27 // I2C address for the LCD
 // #define LCD_BIG_FONTS            // define this for ... bigger fonts...
 
-#define LCD_USE_SH1106_OLED_MODULE
-#define LCD_I2C_ADDR        0x3C // I2C address for the OLED
-#define LCD_BIG_FONTS            // define this for double height fonts...
+// #define LCD_USE_SH1106_OLED_MODULE
+// #define LCD_I2C_ADDR        0x3C // I2C address for the OLED
+// #define LCD_BIG_FONTS            // define this for double height fonts...
 // #define LCD_HUGE_FONTS           // define this for quadruple height fonts...
 // choose one of these depending on your display
-#define LCD_SH1106_128x64
+// #define LCD_SH1106_128x64
 // #define LCD_SH1106_128x32
-#define LCD_SH1106_COLOFFSET 2    // column offset, SH1106 has 132 columns
-#define LCD_SH1106_UPSIDEDOWN    // rotate with 180 degrees
-#define LCD_SH1106_SSD1306INIT   // send additional init commands required by SSD1306
+// #define LCD_SH1106_COLOFFSET 2    // column offset, SH1106 has 132 columns
+// #define LCD_SH1106_UPSIDEDOWN    // rotate with 180 degrees
+// #define LCD_SH1106_SSD1306INIT   // send additional init commands required by SSD1306
+
+#define LCD_USE_ILI9341_TFT_MODULE
+#define LCD_I2C_ADDR        0x27 // dummy address for init - not used
 
 
 /********************************************************************************/
