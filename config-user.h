@@ -9,8 +9,8 @@
 
 // uncomment one of these sets for your specific LCD
 
-// #define LCD_USE_1602_LCD_MODULE
-// #define LCD_I2C_ADDR        0x27 // I2C address for the LCD
+#define LCD_USE_1602_LCD_MODULE
+#define LCD_I2C_ADDR        0x27 // I2C address for the LCD
 
 // #define LCD_USE_SSD1306_OLED_MODULE
 // #define LCD_I2C_ADDR        0x3C // I2C address for the OLED
@@ -38,8 +38,8 @@
 // #define LCD_SH1106_UPSIDEDOWN    // rotate with 180 degrees
 // #define LCD_SH1106_SSD1306INIT   // send additional init commands required by SSD1306
 
-#define LCD_USE_ILI9341_TFT_MODULE
-#define LCD_I2C_ADDR        0x27 // dummy address for init - not used
+// #define LCD_USE_ILI9341_TFT_MODULE
+// #define LCD_I2C_ADDR        0x27 // dummy address for init - not used
 
 
 /********************************************************************************/
